@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ShieldCore Multi-Vector Security Sandbox Lab — Interactive cybersecurity training platform simulating DDoS, SQLi, XSS, CSRF, Brute Force, MitM, and Ransomware attacks with real-time defense visualizations. Made by staexl.">
+    <title>ShieldCore Security Lab — Made by staexl</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ccff' stroke-width='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/><path d='M9 12l2 2 4-4'/></svg>">
+    <meta name="theme-color" content="#0b0c10">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body class="cyber-theme">
+    <!-- Cyber Boot Screen Overlay -->
+    <div id="cyber-boot-overlay" class="cyber-boot-screen">
+        <div class="boot-scanline"></div>
+        <div class="boot-terminal-container">
+            <div class="boot-terminal-header">
+                <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                <span class="boot-header-title">SHIELDCORE INITIALIZING...</span>
+            </div>
+            <div id="boot-terminal-body" class="boot-terminal-body"></div>
+            <div class="boot-terminal-footer">
+                <div class="boot-footer-row">
+                    <span class="boot-progress-label">CORE STATE: BOOTING</span>
+                    <span class="boot-brand-tag">staexl<span>systems</span></span>
+                </div>
+                <div class="boot-progress-outer">
+                    <div id="boot-progress-inner" class="boot-progress-inner" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Overlay background -->
+    <div class="cyber-grid-overlay"></div>
+
+    <!-- Brand Watermark -->
+    <div class="brand-watermark" aria-hidden="true">staexl</div>
+
+    <!-- Corner Brand Badge -->
+    <div class="corner-brand-badge">
+        <span class="corner-badge-text">staexl</span>
+        <span class="corner-badge-sub">security systems</span>
+    </div>
+
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon-container">
+                    <span class="logo-pulse"></span>
+                    <svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 18V18.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>SHIELD<span>CORE</span></h1>
+                    <p class="subtitle">Multi-Vector Security Sandbox • Made by staexl</p>
+                </div>
+            </div>
+
+            <!-- Tabbed Navigation Bar -->
+            <nav class="lab-navigation">
+                <button class="nav-tab active" data-tab="ddos-tab">🖥️ DDoS & Volumetric</button>
+                <button class="nav-tab" data-tab="web-tab">🔍 Web Vulnerabilities</button>
+                <button class="nav-tab" data-tab="auth-tab">🔑 Authentication</button>
+                <button class="nav-tab" data-tab="sys-tab">🕸️ Network & System</button>
+            </nav>
+            
+            <div class="header-status-panel">
+                <div class="status-indicator">
+                    <span class="status-dot green" id="global-status-dot"></span>
+                    <span class="status-text" id="global-status-text">SYSTEM HEALTH: SECURE</span>
+                </div>
+                <div class="status-metric">
+                    <span class="label">UPTIME:</span>
+                    <span class="value" id="uptime-counter">00:00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <div class="workspace-layout">
+            
+            <!-- Left & Center Section: Dynamic tab contents -->
+            <div class="workspace-main-panel">
+                
+                <!-- ==================== TAB 1: DDOS LAB ==================== -->
+                <div class="tab-content-panel active" id="ddos-tab">
+                    <div class="lab-grid-layout">
+                        
+                        <!-- Left controls -->
+                        <div class="lab-col col-ctrl">
+                            <section class="card">
+                                <div class="card-header">
+                                    <div class="header-title"><span class="icon red-glow">☠</span><h2>DDoS Command Center</h2></div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="form-group">
+                                        <label for="ddos-vector">Attack Vector</label>
+                                        <select id="ddos-vector" class="custom-select">
+                                            <option value="none">-- None (Baseline Traffic) --</option>
+                                            <option value="http_flood">HTTP Flood (Layer 7)</option>
+                                            <option value="syn_flood">TCP SYN Flood (Layer 4)</option>
+                                            <option value="udp_flood">UDP Flood (Layer 3/4)</option>
+                                            <option value="slowloris">Slowloris (Layer 7 Slow)</option>
+                                            <option value="dns_amp">DNS Amplification (L3/4 Reflected)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group slider-group">
+                                        <div class="slider-header"><label for="bot-count">Botnet Size</label><span class="slider-value" id="bot-count-val">200</span></div>
+                                        <input type="range" id="bot-count" min="10" max="1000" step="10" value="200" class="custom-slider">
+                                    </div>
+                                    <div class="form-group slider-group">
+                                        <div class="slider-header"><label for="attack-intensity">Intensity (Req/s)</label><span class="slider-value" id="attack-intensity-val">50</span></div>
+                                        <input type="range" id="attack-intensity" min="10" max="150" step="5" value="50" class="custom-slider">
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button id="btn-fire-attack" class="btn btn-danger btn-pulse" disabled>LAUNCH DDoS ATTACK</button>
+                                        <button id="btn-reset-attack" class="btn btn-outline" style="display:none;">STOP DDoS ATTACK</button>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="card">
+                                <div class="card-header">
+                                    <div class="header-title"><span class="icon blue-glow">🛡</span><h2>DDoS Mitigations</h2></div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="defense-toggle-item">
+                                        <div class="toggle-info"><h3>Rate Limiting</h3><p>Drop IPs exceeding standard thresholds.</p></div>
+                                        <label class="switch"><input type="checkbox" id="def-rate-limit"><span class="slider round"></span></label>
+                                    </div>
+                                    <div class="defense-toggle-item">
+                                        <div class="toggle-info"><h3>WAF Inspection</h3><p>Filter dynamic Layer 7 packets.</p></div>
+                                        <label class="switch"><input type="checkbox" id="def-waf"><span class="slider round"></span></label>
+                                    </div>
+                                    <div class="defense-toggle-item">
+                                        <div class="toggle-info"><h3>IP Blacklist</h3><p>Instantly discard known bot pools.</p></div>
+                                        <label class="switch"><input type="checkbox" id="def-ip-block"><span class="slider round"></span></label>
+                                    </div>
+                                    <div class="defense-toggle-item">
+                                        <div class="toggle-info"><h3>Cloud Scrubbing</h3><p>Offload volume and run SYN Cookies.</p></div>
+                                        <label class="switch"><input type="checkbox" id="def-scrubbing"><span class="slider round"></span></label>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Center visuals -->
+                        <div class="lab-col col-vis">
+                            <section class="card panel-map">
+                                <div class="card-header">
+                                    <div class="header-title"><span class="icon pulse-glow">🌐</span><h2>Live Traffic visualizer</h2></div>
+                                    <div class="map-legend">
+                                        <span class="legend-item"><span class="legend-dot green"></span>User</span>
+                                        <span class="legend-item"><span class="legend-dot red"></span>Bot</span>
+                                        <span class="legend-item"><span class="legend-dot gray"></span>Blocked</span>
+                                    </div>
+                                </div>
+                                <div class="card-content map-container">
+                                    <canvas id="attack-map-canvas"></canvas>
+                                    <div class="canvas-hud">
+                                        <div class="hud-item"><span class="label">CLIENTS:</span><span class="value" id="hud-clients">12</span></div>
+                                        <div class="hud-item"><span class="label">BOTS:</span><span class="value text-danger" id="hud-bots">0</span></div>
+                                        <div class="hud-item"><span class="label">CONNS:</span><span class="value" id="hud-conn">12 / 250</span></div>
+                                        <div class="hud-item"><span class="label">REQ/s:</span><span class="value" id="total-req-rate">8.0</span></div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="card panel-telemetry">
+                                <div class="card-header">
+                                    <div class="header-title"><h2>Telemetry Sensors</h2></div>
+                                    <div class="chart-metrics-summary">
+                                        <div class="summary-metric"><span class="label">CPU</span><span class="value" id="stat-cpu">5%</span></div>
+                                        <div class="summary-metric"><span class="label">LATENCY</span><span class="value" id="stat-latency">35ms</span></div>
+                                        <div class="summary-metric"><span class="label">SUCCESS RATE</span><span class="value" id="stat-success-rate">100%</span></div>
+                                    </div>
+                                </div>
+                                <div class="card-content telemetry-charts-container">
+                                    <div class="chart-box"><div class="chart-title">Bandwidth (Gbps)</div><canvas id="chart-bandwidth"></canvas></div>
+                                    <div class="chart-box"><div class="chart-title">Connections & Latency</div><canvas id="chart-connections"></canvas></div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== TAB 2: WEB VULNERABILITY LAB ==================== -->
+                <div class="tab-content-panel" id="web-tab">
+                    <div class="lab-grid-layout">
+                        
+                        <!-- Left controls & code inspector -->
+                        <div class="lab-col col-ctrl">
+                            <section class="card">
+                                <div class="card-header">
+                                    <div class="header-title"><span class="icon red-glow">🔍</span><h2>Web Attack Console</h2></div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="form-group">
+                                        <label for="web-attack-vector">Vulnerability Target</label>
+                                        <select id="web-attack-vector" class="custom-select">
+                                            <option value="sqli">SQL Injection (Database Search)</option>
+                                            <option value="xss">Cross-Site Scripting (Guestbook comments)</option>
+                                            <option value="csrf">Cross-Site Request Forgery (Silent Bank Transfer)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div id="web-templates-section">
+                                        <label class="sub-label">Attack Templates</label>
+                                        <div class="template-buttons" id="web-templates-container">
+                                            <!-- Injected dynamically based on selected vector -->
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Mitigation Controls</label>
+                                        <div class="defense-toggle-item toggle-dense">
+                                            <div class="toggle-info"><h3>Parameterized Queries</h3><p>Separate SQL code from inputs.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-sqli-prep"><span class="slider round"></span></label>
+                                        </div>
+                                        <div class="defense-toggle-item toggle-dense">
+                                            <div class="toggle-info"><h3>XSS Input Encoding</h3><p>Encode &lt; and &gt; characters.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-xss-encode"><span class="slider round"></span></label>
+                                        </div>
+                                        <div class="defense-toggle-item toggle-dense">
+                                            <div class="toggle-info"><h3>Anti-CSRF Tokens</h3><p>Inject cryptotokens in bank forms.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-csrf-token"><span class="slider round"></span></label>
+                                        </div>
+                                        <div class="defense-toggle-item toggle-dense">
+                                            <div class="toggle-info"><h3>WAF Inspection</h3><p>Inspect incoming payload strings.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-web-waf"><span class="slider round"></span></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Backend Code Viewer -->
+                            <section class="card">
+                                <div class="card-header"><h2>Dynamic Backend Code Viewer</h2></div>
+                                <div class="card-content code-viewer-content">
+                                    <pre id="backend-code-view" class="syntax-viewer">Loading code...</pre>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Center interactive frames -->
+                        <div class="lab-col col-vis">
+                            <section class="card panel-sandbox-view">
+                                <div class="card-header">
+                                    <div class="header-title"><h2>Active Mock Target Interface</h2></div>
+                                </div>
+                                <div class="card-content sandbox-frame-container" id="web-sandbox-canvas">
+                                    <!-- Dynamic Interface frames swapped by JS -->
+                                    
+                                    <!-- Frame: SQLi Search -->
+                                    <div class="sandbox-frame active" id="frame-sqli">
+                                        <div class="mock-browser-header">
+                                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                                            <div class="mock-url-bar">http://securevault.local/admin/search</div>
+                                        </div>
+                                        <div class="mock-browser-body">
+                                            <h3>SecureVault Record Directory</h3>
+                                            <p class="frame-desc">Search administrative secure keys. Standard input is a record ID (e.g. 1, 2).</p>
+                                            <div class="mock-search-form">
+                                                <input type="text" id="sqli-input" placeholder="Enter record ID..." class="custom-input">
+                                                <button id="btn-sqli-submit" class="btn btn-primary">SEARCH</button>
+                                            </div>
+                                            <div class="db-results-box">
+                                                <h4>Query Database Results:</h4>
+                                                <div class="table-scroll-container">
+                                                    <table class="db-table" id="sqli-results-table">
+                                                        <thead><tr><th>ID</th><th>Client</th><th>Vault Code</th><th>Status</th></tr></thead>
+                                                        <tbody><tr><td colspan="4" class="text-center text-muted">No search query executed.</td></tr></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Frame: XSS Guestbook -->
+                                    <div class="sandbox-frame" id="frame-xss">
+                                        <div class="mock-browser-header">
+                                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                                            <div class="mock-url-bar">http://securevault.local/guestbook</div>
+                                        </div>
+                                        <div class="mock-browser-body">
+                                            <h3>Public Guestbook Feed</h3>
+                                            <p class="frame-desc">Post public comments. Script elements input here will store in the DB and reflect onto other viewers.</p>
+                                            <div class="mock-comments-form">
+                                                <input type="text" id="xss-name" placeholder="Your Name" class="custom-input">
+                                                <textarea id="xss-comment" placeholder="Type comment..." class="custom-input"></textarea>
+                                                <button id="btn-xss-submit" class="btn btn-primary">POST COMMENT</button>
+                                            </div>
+                                            <div class="comments-section">
+                                                <h4>Live Guestbook Feed:</h4>
+                                                <div class="comments-list" id="xss-comments-list">
+                                                    <!-- Comments injected here -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Frame: CSRF Bank Transfer -->
+                                    <div class="sandbox-frame" id="frame-csrf">
+                                        <div class="csrf-split-view">
+                                            <!-- banking frame -->
+                                            <div class="csrf-panel-bank">
+                                                <div class="mock-browser-header">
+                                                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                                                    <div class="mock-url-bar">http://vault-bank.local/transfer</div>
+                                                </div>
+                                                <div class="mock-browser-body">
+                                                    <div class="bank-balance-card">
+                                                        <span class="label">VAULT ACCOUNT BALANCE</span>
+                                                        <h2 id="csrf-bank-balance">$10,000.00</h2>
+                                                    </div>
+                                                    <h4>Transfer Funds</h4>
+                                                    <div class="mock-bank-form">
+                                                        <input type="text" id="csrf-bank-to" placeholder="Recipient Account" class="custom-input">
+                                                        <input type="number" id="csrf-bank-amount" placeholder="Amount ($)" class="custom-input">
+                                                        <div id="csrf-token-readout" class="token-alert">Anti-CSRF Token: NONE</div>
+                                                        <button id="btn-csrf-bank-submit" class="btn btn-primary btn-block">SEND FUNDS</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- external hacker site frame -->
+                                            <div class="csrf-panel-hacker">
+                                                <div class="mock-browser-header hacker-site">
+                                                    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                                                    <div class="mock-url-bar">http://free-giveaway-prize.net</div>
+                                                </div>
+                                                <div class="mock-browser-body">
+                                                    <div class="hacker-promo-box">
+                                                        <h3>🎁 CONGRATULATIONS!</h3>
+                                                        <p>You have won a free PlayStation 5! Click the button below to claim your prize.</p>
+                                                        <button id="btn-csrf-malicious" class="btn btn-danger btn-block">CLAIM FREE PRIZE NOW</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <!-- SQL Query / Transaction log readout -->
+                            <section class="card panel-log-readout">
+                                <div class="card-header"><h2>Console Execution Output</h2></div>
+                                <div class="card-content console-readout-box">
+                                    <div id="web-console-output" class="terminal-view compact-log">
+                                        <div class="log-line system">[SYSTEM] Web lab environment loaded. Waiting for query requests...</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ==================== TAB 3: AUTH SECURITY LAB ==================== -->
+                <div class="tab-content-panel" id="auth-tab">
+                    <div class="lab-grid-layout">
+                        
+                        <!-- Left controls -->
+                        <div class="lab-col col-ctrl">
+                            <section class="card">
+                                <div class="card-header">
+                                    <div class="header-title"><span class="icon red-glow">🔑</span><h2>Auth Attack Console</h2></div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="form-group">
+                                        <label for="auth-attack-vector">Guessing Method</label>
+                                        <select id="auth-attack-vector" class="custom-select">
+                                            <option value="dict">Dictionary Attack (Common leaks)</option>
+                                            <option value="brute">Automated Brute Force (Iterative)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group slider-group">
+                                        <div class="slider-header"><label for="auth-speed">Cracking Speed (Try/sec)</label><span class="slider-value" id="auth-speed-val">10</span></div>
+                                        <input type="range" id="auth-speed" min="1" max="40" step="1" value="10" class="custom-slider">
+                                    </div>
+                                    
+                                    <div class="action-buttons">
+                                        <button id="btn-auth-start" class="btn btn-danger">START ATTACK</button>
+                                        <button id="btn-auth-stop" class="btn btn-outline" style="display:none;">STOP ATTACK</button>
+                                    </div>
+
+                                    <div class="form-group" style="margin-top: 15px;">
+                                        <label>Defensive Settings</label>
+                                        <div class="defense-toggle-item">
+                                            <div class="toggle-info"><h3>Account Lockout</h3><p>Lock account for 10s after 3 fails.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-auth-lockout"><span class="slider round"></span></label>
+                                        </div>
+                                        <div class="defense-toggle-item">
+                                            <div class="toggle-info"><h3>CAPTCHA Challenge</h3><p>Block rapid automated inputs.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-auth-captcha"><span class="slider round"></span></label>
+                                        </div>
+                                        <div class="defense-toggle-item">
+                                            <div class="toggle-info"><h3>IP Throttling</h3><p>Limits connections to 1 attempt/s.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-auth-throttle"><span class="slider round"></span></label>
+                                        </div>
+                                        <div class="defense-toggle-item">
+                                            <div class="toggle-info"><h3>MFA Enforcement</h3><p>Required secondary authentication token.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-auth-mfa"><span class="slider round"></span></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Center login form and scan monitor -->
+                        <div class="lab-col col-vis">
+                            <section class="card panel-sandbox-view">
+                                <div class="card-header"><h2>Login Portal Interface</h2></div>
+                                <div class="card-content map-container centering-container">
+                                    
+                                    <div class="mock-login-card" id="login-portal-card">
+                                        <div class="login-card-header">
+                                            <h3>Vault Administration</h3>
+                                            <p>Access restricted to Authorized Personnel</p>
+                                        </div>
+                                        
+                                        <!-- Lockout Warning overlay -->
+                                        <div class="lockout-overlay" id="auth-lockout-overlay" style="display:none;">
+                                            <span class="overlay-icon">🔒</span>
+                                            <h4>PORTAL LOCKED</h4>
+                                            <p>Too many failed credentials. Locked for <span id="lockout-timer">10</span> seconds.</p>
+                                        </div>
+
+                                        <div class="login-card-body">
+                                            <div class="form-group">
+                                                <label for="login-username">Username</label>
+                                                <input type="text" id="login-username" value="admin" class="custom-input" readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="login-password">Password</label>
+                                                <input type="password" id="login-password" placeholder="••••••••" class="custom-input">
+                                            </div>
+                                            
+                                            <!-- CAPTCHA Box -->
+                                            <div class="mock-captcha-box" id="auth-captcha-container" style="display:none;">
+                                                <div class="captcha-verify-check">
+                                                    <input type="checkbox" id="captcha-checkbox">
+                                                    <label for="captcha-checkbox">I am not a robot</label>
+                                                </div>
+                                                <span class="captcha-badge">reCAPTCHA</span>
+                                            </div>
+
+                                            <button id="btn-login-submit" class="btn btn-primary btn-block">SIGN IN</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- MFA Popover dialog -->
+                                    <div class="mfa-dialog" id="auth-mfa-dialog" style="display:none;">
+                                        <h3>MFA Check Required</h3>
+                                        <p>Password verified. Enter the 6-digit dynamic code sent to your authenticator application.</p>
+                                        <div class="mfa-input-row">
+                                            <input type="text" id="mfa-code" placeholder="123456" maxlength="6" class="custom-input center-text font-large">
+                                        </div>
+                                        <button id="btn-mfa-submit" class="btn btn-success btn-block">VERIFY TOKEN</button>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section class="card">
+                                <div class="card-header"><h2>Attack Dictionary Scanner logs</h2></div>
+                                <div class="card-content">
+                                    <div id="auth-scan-output" class="terminal-view compact-log font-small">
+                                        <div class="log-line system">[SYSTEM] Scanner engine ready. Select parameters and click Start.</div>
+                                    </div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" id="auth-progress-fill" style="width: 0%;"></div>
+                                        <div class="progress-text" id="auth-progress-text">Progress: 0% (0 / 0 keys)</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ==================== TAB 4: NETWORK & SYSTEM LAB ==================== -->
+                <div class="tab-content-panel" id="sys-tab">
+                    <div class="lab-grid-layout">
+                        
+                        <!-- Left controls -->
+                        <div class="lab-col col-ctrl">
+                            <section class="card">
+                                <div class="card-header">
+                                    <div class="header-title"><span class="icon red-glow">🕸</span><h2>Attack Console</h2></div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="form-group">
+                                        <label for="sys-attack-vector">Attack Vector</label>
+                                        <select id="sys-attack-vector" class="custom-select">
+                                            <option value="mitm">Man-in-the-Middle (ARP Poisoning)</option>
+                                            <option value="ransom">Ransomware & Data Exfiltration</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="action-buttons">
+                                        <button id="btn-sys-start" class="btn btn-danger">ENGAGE ATTACK</button>
+                                        <button id="btn-sys-stop" class="btn btn-outline" style="display:none;">CEASE ATTACK</button>
+                                    </div>
+
+                                    <div class="form-group" style="margin-top: 15px;">
+                                        <label>Defensive Settings</label>
+                                        <div class="defense-toggle-item">
+                                            <div class="toggle-info"><h3>HTTPS / TLS Encryption</h3><p>Encrypt packet layers to prevent interception.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-sys-https"><span class="slider round"></span></label>
+                                        </div>
+                                        <div class="defense-toggle-item">
+                                            <div class="toggle-info"><h3>Endpoint Protection</h3><p>Detect and terminate ransomware processes.</p></div>
+                                            <label class="switch"><input type="checkbox" id="def-sys-antimalware"><span class="slider round"></span></label>
+                                        </div>
+                                        <div class="defense-toggle-item">
+                                            <div class="toggle-info"><h3>Backup Restores</h3><p>Roll back file systems to pre-infected dates.</p></div>
+                                            <button id="btn-restore-backups" class="btn btn-tiny" style="margin-top: 3px;" disabled>TRIGGER ROLLBACK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Center Visualizer -->
+                        <div class="lab-col col-vis">
+                            <section class="card panel-sandbox-view">
+                                <div class="card-header"><h2 id="sys-vis-title">Network Intercept topology</h2></div>
+                                <div class="card-content map-container">
+                                    
+                                    <!-- Visualizer 1: MitM network canvas -->
+                                    <canvas id="mitm-network-canvas" class="visual-panel active"></canvas>
+                                    
+                                    <!-- Visualizer 2: Ransomware file grid -->
+                                    <div class="ransomware-file-grid visual-panel" id="ransomware-panel">
+                                        
+                                        <!-- Ransomware Warning overlay -->
+                                        <div class="ransom-lock-screen" id="ransom-lock-overlay" style="display:none;">
+                                            <div class="lock-box">
+                                                <span class="lock-icon">⚠️</span>
+                                                <h2>YOUR FILES HAVE BEEN ENCRYPTED!</h2>
+                                                <p>All source code, database structures, and keys have been locked using RSA-4096 algorithms.</p>
+                                                <div class="ransom-cost">DEMAND: 1.5 BTC</div>
+                                                <p class="small">Enable Backup Restores and trigger rollback to recover your filesystem.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="file-grid-header">
+                                            <span>Directory: C:\Vault\Production\</span>
+                                            <span class="file-grid-stats" id="ransom-files-stats">Files: 9 / Encrypted: 0</span>
+                                        </div>
+                                        <div class="file-items-container" id="ransom-files-container">
+                                            <!-- File items injected by JS -->
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section class="card">
+                                <div class="card-header"><h2>Incident Logs & Traffic Sniffer</h2></div>
+                                <div class="card-content">
+                                    <div id="sys-console-output" class="terminal-view compact-log font-small">
+                                        <div class="log-line system">[SYSTEM] Intercept logs active. Waiting for traffic flow...</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==================== COLUMN 3: GLOBAL SIDEBARS ==================== -->
+            <div class="workspace-sidebar-panel">
+                
+                <!-- Shared Education Base -->
+                <section class="card panel-edu">
+                    <div class="card-header">
+                        <div class="header-title"><span class="icon yellow-glow">🎓</span><h2>Threat Intelligence Base</h2></div>
+                        <span class="header-brand-badge">by staexl</span>
+                    </div>
+                    <div class="card-content edu-container">
+                        <div id="edu-content" class="edu-content-wrapper">
+                            <!-- Injected dynamically by JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Shared System logs -->
+                <section class="card panel-logs">
+                    <div class="card-header">
+                        <div class="header-title"><span class="icon green-glow">⚙</span><h2>Firewall & System Event logs</h2></div>
+                        <div class="logs-header-actions" style="display: flex; gap: 8px;">
+                            <button id="btn-export-logs" class="btn btn-tiny">EXPORT</button>
+                            <button id="btn-clear-logs" class="btn btn-tiny">CLEAR</button>
+                        </div>
+                    </div>
+                    <div class="card-content log-container">
+                        <div id="terminal-logs" class="terminal-view">
+                            <div class="log-line system">[SYSTEM] Security engine loaded. All sensors operational.</div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+    
+    <!-- XSS Custom Popup Container -->
+    <div id="xss-alert-overlay" class="xss-alert-popup" style="display: none;">
+        <div class="xss-alert-box">
+            <div class="xss-alert-header">🚨 CROSS-SITE SCRIPTING DETECTED</div>
+            <div class="xss-alert-body">
+                <p><strong>Payload executed:</strong></p>
+                <div class="payload-text" id="xss-popup-payload">...</div>
+                <p><strong>Stolen session cookies:</strong></p>
+                <div class="cookies-text">session_id=admin_token_098f6bcd4621d373ade4e832627b4f6; permissions=super_admin;</div>
+            </div>
+            <div class="xss-alert-footer">
+                <button class="btn btn-danger btn-tiny" id="btn-close-xss-alert">ACKNOWLEDGE BREACH</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branded Footer -->
+    <footer class="app-footer">
+        <div class="footer-brand">
+            <div class="footer-shield-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="footer-logo">SHIELD<span>CORE</span></span>
+            <span class="footer-divider">|</span>
+            <span class="footer-credit">Engineered by <strong>staexl</strong></span>
+            <span class="footer-divider">|</span>
+            <span class="footer-brand-domain">staexl.systems</span>
+        </div>
+        <div class="footer-right">
+            <span class="footer-badge">SANDBOX MODE</span>
+            <span class="footer-version">Multi-Vector Security Lab v1.1</span>
+            <span class="footer-build-hash">build.2026.06.07</span>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
